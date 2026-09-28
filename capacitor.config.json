@@ -3,7 +3,7 @@
   "appName": "AgriStopa",
   "webDir": "www",
   "server": {
-    "url": "https://plow-and-plan.lovable.app",
+    "url": "https://plow-and-plan.lovable.app/auth",
     "androidScheme": "https",
     "cleartext": false
   },
