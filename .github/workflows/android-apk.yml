@@ -1,0 +1,49 @@
+name: Zostav Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stiahni zdrojove subory
+        uses: actions/checkout@v4
+
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instaluj zavislosti
+        run: npm install
+
+      - name: Vytvor Android projekt
+        run: npx cap add android
+
+      - name: Synchronizuj
+        run: npx cap sync android
+
+      - name: Zostav APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Uloz APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgriStopa-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

@@ -1,0 +1,14 @@
+{
+  "appId": "sk.agristopa.app",
+  "appName": "AgriStopa",
+  "webDir": "www",
+  "server": {
+    "url": "https://plow-and-plan.lovable.app",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  }
+}
