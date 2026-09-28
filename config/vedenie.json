@@ -1,9 +1,9 @@
 {
-  "appId": "sk.agristopa.kabina",
-  "appName": "AgriStopa",
+  "appId": "sk.agristopa.vedenie",
+  "appName": "AgriStopa Vedenie",
   "webDir": "www",
   "server": {
-    "url": "https://plow-and-plan.lovable.app/m",
+    "url": "https://plow-and-plan.lovable.app/auth",
     "androidScheme": "https",
     "cleartext": false
   },

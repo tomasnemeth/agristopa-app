@@ -6,10 +6,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  priprav-vydanie:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zaloz vydanie ak neexistuje
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view najnovsia >/dev/null 2>&1 || \
+            gh release create najnovsia --title "AgriStopa - najnovsia verzia" \
+              --notes "AgriStopa.apk - pre vodicov (kabina). AgriStopa-Vedenie.apk - pre vedenie, mechanizatora a ekonoma."
+
+  build:
+    needs: priprav-vydanie
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: kabina
+            apk: AgriStopa.apk
+          - variant: vedenie
+            apk: AgriStopa-Vedenie.apk
     steps:
       - name: Stiahni zdrojove subory
         uses: actions/checkout@v4
@@ -24,6 +47,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Nastav variant ${{ matrix.variant }}
+        run: |
+          cp config/${{ matrix.variant }}.json capacitor.config.json
+          cat capacitor.config.json
 
       - name: Instaluj zavislosti
         run: npm install
@@ -45,19 +73,9 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Uloz APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: AgriStopa-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-
-      - name: Zverejni APK na trvalej adrese
+      - name: Zverejni APK
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk AgriStopa.apk
-          gh release view najnovsia >/dev/null 2>&1 || \
-            gh release create najnovsia --title "AgriStopa - najnovsia verzia" \
-              --notes "Stiahnite si subor AgriStopa.apk nizsie a nainstalujte ho v telefone."
-          gh release upload najnovsia AgriStopa.apk --clobber
+          cp android/app/build/outputs/apk/debug/app-debug.apk ${{ matrix.apk }}
+          gh release upload najnovsia ${{ matrix.apk }} --clobber
